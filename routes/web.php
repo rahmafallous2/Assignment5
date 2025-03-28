@@ -7,3 +7,7 @@ Route::get('/', function () {
 });
 
 Route::resource('students', StudentController::class);
+Route::get('/students', [StudentController::class, 'index'])->name('students.index');
+Route::get('/students/search', [StudentController::class, 'search'])->name('students.search');
+
+

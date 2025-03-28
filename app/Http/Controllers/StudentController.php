@@ -4,20 +4,45 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+//Rahma Fallous - 20230637
 
 class StudentController extends Controller
 {
     // Display a list of students
-    public function index()
+    public function index(Request $request)
     {
-        $students = Student::all(); // Later: add filtering logic
-        return view('index', compact('students'));
+        $students = Student::all(); 
+        return view('students.index', compact('students'));
+    }
+
+    // Handle AJAX search & filtering
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        $minAge = $request->input('minAge');
+        $maxAge = $request->input('maxAge');
+
+        $students = Student::query();
+
+        if ($query) {
+            $students->where('name', 'LIKE', "%$query%");
+        }
+        if ($minAge) {
+            $students->where('age', '>=', $minAge);
+        }
+        if ($maxAge) {
+            $students->where('age', '<=', $maxAge);
+        }
+
+        $students = $students->get();
+
+        return view('students.partials.student_table', compact('students'));
     }
 
     // Show the form to create a new student
     public function create()
     {
-        return view('create');
+        return view('students.create'); // Make sure this view exists!
     }
 
     // Store a newly created student
@@ -33,11 +58,6 @@ class StudentController extends Controller
             'age'  => $request->age,
         ]);
 
-        return redirect()->route('index')->with('success', 'Student added successfully!');
+        return redirect()->route('students.index')->with('success', 'Student added successfully!');
     }
-
-    public function show($id) {}
-    public function edit($id) {}
-    public function update(Request $request, $id) {}
-    public function destroy($id) {}
 }
